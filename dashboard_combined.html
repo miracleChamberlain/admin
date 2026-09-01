@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#087f73">
+  <title>PredictPro — User Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --primary: #087f73;
+  --primary-dark: #043f3a;
+  --primary-soft: #e7f5f2;
+  --gold: #d7b34a;
+  --ink: #10292c;
+  --muted: #6d7f81;
+  --bg: #f4faf8;
+  --card: #ffffff;
+  --line: #e2ece9;
+  --danger: #c94a4a;
+  --purple: #7258b8;
+  --blue: #3478c5;
+  --shadow: 0 12px 35px rgba(16, 41, 44, .07);
+  --radius: 20px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: "Inter", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.5;
+}
+button { font: inherit; cursor: pointer; border: 0; }
+button:focus-visible { outline: 3px solid rgba(8,127,115,.25); outline-offset: 2px; }
+
+.app-shell { min-height: 100vh; display: flex; }
+.sidebar {
+  width: 260px; background: var(--primary-dark); color: #fff; position: fixed;
+  inset: 0 auto 0 0; padding: 26px 16px 18px; display: flex; flex-direction: column;
+  z-index: 50;
+}
+.brand { display: flex; align-items: center; gap: 11px; padding: 0 10px 28px; }
+.brand-mark {
+  width: 39px; height: 39px; border-radius: 12px; display: grid; place-items: center;
+  background: var(--gold); color: var(--primary-dark); font-weight: 900; font-size: 21px;
+  box-shadow: 0 7px 18px rgba(0,0,0,.18);
+}
+.brand strong { display: block; font-size: 17px; }
+.brand span { display: block; font-size: 10px; color: #b5cfcc; margin-top: 1px; }
+
+.side-nav { display: grid; gap: 5px; }
+.nav-link {
+  width: 100%; color: #c5dad7; background: transparent; padding: 13px 13px;
+  border-radius: 12px; display: flex; align-items: center; gap: 13px; text-align: left;
+  transition: .2s;
+}
+.nav-link > span:first-child { width: 22px; text-align: center; font-size: 18px; }
+.nav-link:hover, .nav-link.active { background: rgba(255,255,255,.10); color: #fff; }
+.nav-link.active { box-shadow: inset 3px 0 var(--gold); }
+.nav-badge { margin-left: auto; background: var(--gold); color: var(--primary-dark); border-radius: 20px; padding: 2px 7px; font-size: 10px; }
+
+.sidebar-card {
+  margin: auto 4px 20px; padding: 17px; border: 1px solid rgba(255,255,255,.11);
+  background: rgba(255,255,255,.055); border-radius: 16px;
+}
+.mini-label { color: #8fb9b4; font-size: 9px; font-weight: 800; letter-spacing: 1.4px; display:block; }
+.sidebar-card strong { display:block; margin: 5px 0 12px; font-size: 14px; }
+.sidebar-card small { color: #9bbdb9; font-size: 10px; }
+.progress { height: 5px; background: rgba(255,255,255,.13); border-radius: 10px; overflow:hidden; margin-bottom: 8px; }
+.progress i { display:block; height:100%; background: var(--gold); border-radius:inherit; }
+.sidebar-footer { display: grid; gap: 5px; }
+.utility-btn { background: transparent; color:#a8c7c3; text-align:left; padding:9px 12px; border-radius:10px; }
+.utility-btn:hover { background: rgba(255,255,255,.07); color:#fff; }
+
+.main { margin-left: 260px; width: calc(100% - 260px); min-width: 0; }
+.topbar {
+  height: 72px; display:flex; align-items:center; padding: 0 34px; gap: 15px;
+  background: rgba(255,255,255,.92); border-bottom:1px solid var(--line);
+  position: sticky; top:0; z-index:30; backdrop-filter: blur(14px);
+}
+.topbar-spacer { flex:1; }
+.icon-btn { width:42px; height:42px; border-radius:12px; background:#f1f7f5; color:var(--primary-dark); }
+.notification-btn { position:relative; }
+.notification-btn i { width:7px; height:7px; background:var(--danger); border:2px solid #fff; position:absolute; top:9px; right:9px; border-radius:50%; }
+.menu-btn, .mobile-brand { display:none; }
+.user-menu { display:flex; align-items:center; gap:10px; padding-left:10px; }
+.avatar, .account-avatar { display:grid; place-items:center; border-radius:50%; background:var(--primary-soft); color:var(--primary); font-weight:800; }
+.avatar { width:40px; height:40px; font-size:12px; }
+.user-meta strong, .user-meta span { display:block; }
+.user-meta strong { font-size:12px; }
+.user-meta span { font-size:10px; color:var(--muted); }
+
+.content { max-width: 1440px; margin:auto; padding: 28px 34px 70px; }
+.hero {
+  min-height: 270px; position:relative; overflow:hidden; border-radius:26px;
+  padding: 38px 42px; color:#fff; background:linear-gradient(135deg, var(--primary-dark), var(--primary));
+  box-shadow: var(--shadow); display:flex; align-items:center;
+}
+.hero:after { content:""; position:absolute; width:330px; height:330px; right:80px; top:-150px; border-radius:50%; background:rgba(255,255,255,.055); }
+.hero-copy { max-width:700px; position:relative; z-index:2; }
+.eyebrow { font-size:10px; font-weight:800; letter-spacing:1.7px; color:var(--primary); }
+.hero .eyebrow { color:#a9d8d2; }
+.hero h1 { font-size:clamp(29px, 4vw, 44px); line-height:1.1; margin:9px 0 12px; letter-spacing:-1.5px; }
+.hero h1 span { color:var(--gold); }
+.hero p { max-width:650px; color:#c9e1de; font-size:13px; }
+.hero-actions { display:flex; gap:10px; margin-top:24px; flex-wrap:wrap; }
+.primary-btn, .ghost-btn {
+  border-radius:11px; padding:11px 16px; font-weight:700; font-size:12px;
+}
+.primary-btn { background:var(--gold); color:var(--primary-dark); }
+.primary-btn span { margin-left:10px; }
+.ghost-btn { background:rgba(255,255,255,.1); color:#fff; border:1px solid rgba(255,255,255,.18); }
+.hero-orb { position:absolute; right:70px; width:240px; height:240px; display:grid; place-items:center; z-index:1; }
+.orb-ball { width:110px; height:110px; border-radius:50%; display:grid; place-items:center; background:rgba(255,255,255,.10); font-size:54px; border:1px solid rgba(255,255,255,.18); animation:float 4s ease-in-out infinite; }
+.orb-ring { position:absolute; border:1px solid rgba(255,255,255,.15); border-radius:50%; }
+.ring-1 { inset:18px; animation:spin 18s linear infinite; }
+.ring-2 { inset:0; border-style:dashed; animation:spin 25s linear reverse infinite; }
+@keyframes float { 50% { transform:translateY(-8px) rotate(4deg); } }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:20px 0 36px; }
+.stat-card {
+  background:var(--card); border:1px solid var(--line); border-radius:18px; padding:17px;
+  box-shadow:0 7px 22px rgba(16,41,44,.04); display:grid; grid-template-columns:auto 1fr auto;
+  gap:11px; align-items:center;
+}
+.stat-icon { width:39px; height:39px; border-radius:11px; display:grid; place-items:center; font-size:16px; }
+.stat-icon.green { background:var(--primary-soft); color:var(--primary); }
+.stat-icon.gold { background:#fbf5df; color:#a38117; }
+.stat-icon.purple { background:#f0ebfb; color:var(--purple); }
+.stat-icon.blue { background:#e9f2fb; color:var(--blue); }
+.stat-card span, .stat-card strong { display:block; }
+.stat-card span { color:var(--muted); font-size:10px; }
+.stat-card strong { font-size:20px; margin-top:2px; }
+.stat-card small { font-size:9px; white-space:nowrap; color:var(--muted); }
+.positive { color:var(--primary) !important; }
+.warning { color:#a38117 !important; }
+
+.section-block { margin-bottom:44px; scroll-margin-top:90px; }
+.section-heading { display:flex; align-items:end; justify-content:space-between; gap:15px; margin-bottom:16px; }
+.section-heading h2 { font-size:24px; margin-top:3px; letter-spacing:-.7px; }
+.text-btn { background:transparent; color:var(--primary); font-size:11px; font-weight:800; }
+.filter-row { display:flex; gap:7px; overflow:auto; padding-bottom:13px; scrollbar-width:none; }
+.filter { flex:0 0 auto; padding:8px 13px; border-radius:30px; background:#fff; border:1px solid var(--line); color:var(--muted); font-size:10px; font-weight:700; }
+.filter.active, .filter:hover { background:var(--primary); color:#fff; border-color:var(--primary); }
+
+.prediction-list { display:grid; gap:12px; }
+.prediction-card {
+  background:#fff; border:1px solid var(--line); border-radius:18px; padding:18px;
+  display:grid; grid-template-columns:1.15fr 1fr auto; gap:18px; align-items:center;
+  box-shadow:0 7px 22px rgba(16,41,44,.035); transition:.2s;
+}
+.prediction-card:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
+.match-meta { display:flex; gap:7px; align-items:center; margin-bottom:8px; }
+.league { color:var(--muted); font-size:9px; }
+.live-label { color:var(--danger); font-size:8px; font-weight:800; padding:3px 6px; border-radius:20px; background:#fff0f0; }
+.teams { display:flex; align-items:center; gap:11px; }
+.team { display:flex; align-items:center; gap:8px; font-weight:800; font-size:12px; }
+.team-badge { width:28px; height:28px; border-radius:9px; background:#eef4f3; display:grid; place-items:center; font-size:13px; }
+.vs { font-size:9px; color:#9aabaa; font-weight:700; }
+.pick-box { padding-left:18px; border-left:1px solid var(--line); }
+.pick-box span { color:var(--muted); font-size:9px; display:block; }
+.pick-box strong { display:block; color:var(--primary-dark); font-size:14px; margin:3px 0; }
+.pick-box small { font-size:9px; color:#a38117; }
+.confidence { text-align:right; min-width:75px; }
+.confidence strong { display:block; font-size:22px; color:var(--primary); }
+.confidence span { font-size:8px; color:var(--muted); }
+.conf-bar { width:75px; height:4px; background:#e8efed; border-radius:5px; margin:6px 0 0 auto; overflow:hidden; }
+.conf-bar i { display:block; height:100%; background:var(--primary); }
+
+.ai-section { background:#edf8f5; border:1px solid #d8eee8; border-radius:25px; padding:24px; }
+.ai-section .section-heading { margin-bottom:14px; }
+.live-chip { background:#d9f1eb; color:var(--primary); border-radius:30px; padding:6px 9px; font-size:8px; font-weight:800; }
+.live-chip i { display:inline-block; width:6px; height:6px; background:var(--primary); border-radius:50%; margin-right:5px; animation:pulse 1.5s infinite; }
+@keyframes pulse { 50% { opacity:.3; transform:scale(.7); } }
+.ai-banner { display:flex; gap:13px; align-items:center; background:#fff; border:1px solid var(--line); border-radius:15px; padding:13px 15px; margin-bottom:14px; }
+.ai-symbol { width:35px; height:35px; border-radius:10px; display:grid; place-items:center; background:#f0ebfb; color:var(--purple); }
+.ai-banner strong { font-size:11px; }
+.ai-banner p { font-size:9px; color:var(--muted); margin-top:2px; }
+.ai-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.ai-card { background:#fff; border:1px solid var(--line); border-radius:17px; padding:16px; }
+.ai-card-header { display:flex; justify-content:space-between; gap:10px; margin-bottom:13px; }
+.ai-match { font-size:11px; font-weight:800; }
+.ai-league { font-size:8px; color:var(--muted); display:block; margin-top:2px; }
+.ai-badge { background:#f0ebfb; color:var(--purple); font-size:8px; font-weight:800; padding:5px 7px; border-radius:20px; height:max-content; }
+.ai-bars { display:grid; gap:8px; }
+.ai-row { display:grid; grid-template-columns:45px 1fr 34px; align-items:center; gap:7px; font-size:8px; color:var(--muted); }
+.ai-row b { font-size:9px; color:var(--ink); text-align:right; }
+.ai-track { height:6px; background:#edf1f0; border-radius:10px; overflow:hidden; }
+.ai-track i { display:block; height:100%; background:var(--purple); border-radius:inherit; }
+.ai-pick { border-top:1px solid var(--line); margin-top:13px; padding-top:11px; display:flex; justify-content:space-between; align-items:center; }
+.ai-pick span { font-size:8px; color:var(--muted); }
+.ai-pick strong { font-size:10px; color:var(--purple); }
+
+.results-table-wrap { background:#fff; border:1px solid var(--line); border-radius:18px; overflow:auto; }
+.results-table { width:100%; border-collapse:collapse; min-width:600px; }
+.results-table th { background:#f8fbfa; color:var(--muted); text-align:left; font-size:9px; text-transform:uppercase; letter-spacing:.7px; padding:13px 16px; }
+.results-table td { padding:15px 16px; border-top:1px solid var(--line); font-size:10px; }
+.results-table td strong, .results-table td span { display:block; }
+.results-table td span { color:var(--muted); font-size:8px; margin-top:2px; }
+.result { padding:5px 8px; border-radius:20px; font-size:8px; }
+.result.won { color:var(--primary); background:var(--primary-soft); }
+.result.lost { color:var(--danger); background:#fff0f0; }
+
+.account-card { background:#fff; border:1px solid var(--line); border-radius:20px; padding:22px; display:flex; gap:20px; align-items:center; }
+.account-avatar { width:64px; height:64px; font-size:17px; flex:0 0 auto; }
+.account-info { display:grid; gap:2px; flex:1; }
+.account-info span { color:var(--muted); font-size:8px; margin-top:4px; }
+.account-info strong { font-size:12px; }
+.account-status { min-width:270px; }
+.account-status b { display:inline-block; background:var(--primary-soft); color:var(--primary); font-size:8px; padding:5px 8px; border-radius:20px; }
+.account-status span, .account-status small { display:block; color:var(--muted); font-size:9px; margin-top:7px; }
+.progress.large { background:#e7efed; height:7px; margin:10px 0 0; }
+.progress.large i { background:var(--primary); }
+
+.notification-list { display:grid; gap:9px; }
+.notification-list article { background:#fff; border:1px solid var(--line); border-radius:15px; padding:14px 16px; display:grid; grid-template-columns:180px 1fr auto; gap:12px; align-items:center; }
+.notification-list b { font-size:10px; }
+.notification-list span, .notification-list time { font-size:9px; color:var(--muted); }
+
+footer { border-top:1px solid var(--line); margin-top:30px; padding-top:24px; text-align:center; color:var(--muted); }
+.footer-brand { display:flex; justify-content:center; align-items:center; gap:8px; color:var(--ink); }
+.footer-brand .brand-mark { width:30px; height:30px; font-size:15px; border-radius:9px; }
+footer p { font-size:9px; margin:8px 0 4px; }
+footer small { font-size:8px; }
+
+.overlay { display:none; }
+.mobile-nav { display:none; }
+.toast { position:fixed; right:24px; bottom:24px; background:var(--primary-dark); color:#fff; padding:11px 15px; border-radius:11px; font-size:10px; opacity:0; transform:translateY(15px); pointer-events:none; transition:.25s; z-index:100; }
+.toast.show { opacity:1; transform:none; }
+
+@media (max-width: 1100px) {
+  .stats-grid { grid-template-columns:repeat(2,1fr); }
+  .ai-grid { grid-template-columns:1fr; }
+  .hero-orb { right:15px; opacity:.5; }
+}
+
+@media (max-width: 800px) {
+  .sidebar { transform:translateX(-105%); transition:.28s ease; box-shadow:15px 0 35px rgba(0,0,0,.15); }
+  .sidebar.open { transform:none; }
+  .overlay { position:fixed; inset:0; background:rgba(4,63,58,.45); z-index:40; }
+  .overlay.show { display:block; }
+  .main { margin-left:0; width:100%; padding-bottom:65px; }
+  .topbar { padding:0 15px; height:62px; }
+  .menu-btn, .mobile-brand { display:flex; }
+  .menu-btn { align-items:center; justify-content:center; }
+  .mobile-brand { align-items:center; gap:7px; }
+  .mobile-brand .brand-mark { width:31px; height:31px; font-size:15px; border-radius:9px; }
+  .mobile-brand strong { font-size:13px; }
+  .user-meta { display:none; }
+  .content { padding:17px 15px 35px; }
+  .hero { min-height:310px; padding:27px 23px; align-items:flex-start; }
+  .hero-orb { right:-45px; bottom:-50px; transform:scale(.72); opacity:.4; }
+  .hero-actions { margin-top:19px; }
+  .stats-grid { grid-template-columns:1fr 1fr; gap:9px; margin:14px 0 30px; }
+  .stat-card { grid-template-columns:auto 1fr; padding:13px; }
+  .stat-card small { grid-column:2; }
+  .stat-icon { width:34px; height:34px; }
+  .stat-card strong { font-size:17px; }
+  .prediction-card { grid-template-columns:1fr; gap:13px; }
+  .pick-box { border-left:0; border-top:1px solid var(--line); padding:12px 0 0; }
+  .confidence { text-align:left; display:flex; align-items:center; gap:8px; }
+  .confidence strong { font-size:18px; }
+  .conf-bar { margin:0; }
+  .section-heading h2 { font-size:21px; }
+  .account-card { align-items:flex-start; flex-wrap:wrap; }
+  .account-status { min-width:100%; }
+  .notification-list article { grid-template-columns:1fr; gap:4px; }
+  .mobile-nav {
+    position:fixed; display:grid; grid-template-columns:repeat(5,1fr); left:0; right:0; bottom:0;
+    height:64px; background:#fff; border-top:1px solid var(--line); z-index:60;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .mobile-nav-link { background:transparent; color:#809291; display:grid; place-items:center; align-content:center; gap:2px; }
+  .mobile-nav-link span { font-size:18px; line-height:1; }
+  .mobile-nav-link small { font-size:8px; font-weight:700; }
+  .mobile-nav-link.active { color:var(--primary); }
+}
+
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns:1fr 1fr; }
+  .stat-card { min-height:92px; }
+  .stat-card span { font-size:9px; }
+  .hero h1 { font-size:29px; }
+  .hero p { font-size:11px; }
+  .primary-btn, .ghost-btn { font-size:10px; padding:10px 12px; }
+  .ai-section { padding:17px 12px; border-radius:19px; }
+  .ai-banner { align-items:flex-start; }
+  .section-block { margin-bottom:35px; }
+}
+
+</style>
+</head>
+<body>
+  <div class="app-shell">
+
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">P</div>
+        <div>
+          <strong>PredictPro</strong>
+          <span>Football Intelligence</span>
+        </div>
+      </div>
+
+      <nav class="side-nav">
+        <button class="nav-link active" data-section="dashboard">
+          <span>⌂</span><span>Dashboard</span>
+        </button>
+        <button class="nav-link" data-section="predictions">
+          <span>⚽</span><span>Predictions</span>
+        </button>
+        <button class="nav-link" data-section="ai">
+          <span>✦</span><span>AI Predictions</span>
+        </button>
+        <button class="nav-link" data-section="results">
+          <span>✓</span><span>Results</span>
+        </button>
+        <button class="nav-link" data-section="notifications">
+          <span>♧</span><span>Notifications</span>
+          <b class="nav-badge">3</b>
+        </button>
+        <button class="nav-link" data-section="profile">
+          <span>◉</span><span>My Account</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-card">
+        <span class="mini-label">YOUR ACCESS</span>
+        <strong>VIP Member</strong>
+        <div class="progress"><i style="width: 72%"></i></div>
+        <small>18 days remaining</small>
+      </div>
+
+      <div class="sidebar-footer">
+        <button id="themeBtn" class="utility-btn">☾ <span>Appearance</span></button>
+        <button id="logoutBtn" class="utility-btn">↪ <span>Logout</span></button>
+      </div>
+    </aside>
+
+    <div class="overlay" id="overlay"></div>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
+
+        <div class="mobile-brand">
+          <div class="brand-mark">P</div>
+          <strong>PredictPro</strong>
+        </div>
+
+        <div class="topbar-spacer"></div>
+
+        <button class="icon-btn notification-btn" id="notificationBtn" aria-label="Notifications">
+          ♧<i></i>
+        </button>
+
+        <div class="user-menu">
+          <div class="avatar">MC</div>
+          <div class="user-meta">
+            <strong>Miracle</strong>
+            <span>VIP Member</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="content">
+
+        <section class="hero">
+          <div class="hero-copy">
+            <span class="eyebrow">WELCOME BACK</span>
+            <h1>Good evening, <span>Miracle.</span></h1>
+            <p>Your football intelligence center is ready. Explore today's picks, AI analysis and previous results.</p>
+            <div class="hero-actions">
+              <button class="primary-btn" data-scroll="predictions">View Today's Picks <span>→</span></button>
+              <button class="ghost-btn" data-scroll="ai">See AI Analysis</button>
+            </div>
+          </div>
+          <div class="hero-orb">
+            <div class="orb-ball">⚽</div>
+            <div class="orb-ring ring-1"></div>
+            <div class="orb-ring ring-2"></div>
+          </div>
+        </section>
+
+        <section class="stats-grid">
+          <article class="stat-card">
+            <div class="stat-icon green">⚽</div>
+            <div><span>Today's Picks</span><strong>12</strong></div>
+            <small class="positive">+4 new today</small>
+          </article>
+          <article class="stat-card">
+            <div class="stat-icon gold">✓</div>
+            <div><span>Recent Accuracy</span><strong>78.4%</strong></div>
+            <small class="positive">Last 50 picks</small>
+          </article>
+          <article class="stat-card">
+            <div class="stat-icon purple">✦</div>
+            <div><span>AI Confidence</span><strong>82%</strong></div>
+            <small>Average today</small>
+          </article>
+          <article class="stat-card">
+            <div class="stat-icon blue">◷</div>
+            <div><span>Access Remaining</span><strong>18 days</strong></div>
+            <small class="warning">Expires 19 Sep</small>
+          </article>
+        </section>
+
+        <section class="section-block" id="predictions">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">LIVE PICKS</span>
+              <h2>Today's Predictions</h2>
+            </div>
+            <button class="text-btn" data-section="predictions">View all →</button>
+          </div>
+
+          <div class="filter-row">
+            <button class="filter active" data-filter="all">All</button>
+            <button class="filter" data-filter="vip">VIP</button>
+            <button class="filter" data-filter="safe">High Confidence</button>
+            <button class="filter" data-filter="goals">Goals</button>
+            <button class="filter" data-filter="btts">BTTS</button>
+          </div>
+
+          <div class="prediction-list" id="predictionList"></div>
+        </section>
+
+        <section class="section-block ai-section" id="ai">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">MACHINE ANALYSIS</span>
+              <h2>AI Prediction Center</h2>
+            </div>
+            <span class="live-chip"><i></i> AI ONLINE</span>
+          </div>
+
+          <div class="ai-banner">
+            <div class="ai-symbol">✦</div>
+            <div>
+              <strong>AI independently analyzes every published match</strong>
+              <p>AI probabilities are estimates, not guarantees. Use them alongside the available match information.</p>
+            </div>
+          </div>
+
+          <div class="ai-grid" id="aiGrid"></div>
+        </section>
+
+        <section class="section-block" id="results">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">TRACK RECORD</span>
+              <h2>Recent Results</h2>
+            </div>
+            <button class="text-btn" data-section="results">Full history →</button>
+          </div>
+
+          <div class="results-table-wrap">
+            <table class="results-table">
+              <thead>
+                <tr>
+                  <th>Match</th>
+                  <th>Prediction</th>
+                  <th>Score</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Arsenal vs Newcastle</strong><span>Premier League</span></td>
+                  <td>Arsenal Win</td>
+                  <td>2 - 0</td>
+                  <td><b class="result won">WON</b></td>
+                </tr>
+                <tr>
+                  <td><strong>Inter vs Roma</strong><span>Serie A</span></td>
+                  <td>Over 1.5 Goals</td>
+                  <td>2 - 1</td>
+                  <td><b class="result won">WON</b></td>
+                </tr>
+                <tr>
+                  <td><strong>Real Madrid vs Valencia</strong><span>La Liga</span></td>
+                  <td>BTTS</td>
+                  <td>3 - 0</td>
+                  <td><b class="result lost">LOST</b></td>
+                </tr>
+                <tr>
+                  <td><strong>Bayern vs Dortmund</strong><span>Bundesliga</span></td>
+                  <td>Over 2.5 Goals</td>
+                  <td>3 - 2</td>
+                  <td><b class="result won">WON</b></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section-block account-section" id="profile">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">ACCOUNT</span>
+              <h2>My Membership</h2>
+            </div>
+          </div>
+
+          <div class="account-card">
+            <div class="account-avatar">MC</div>
+            <div class="account-info">
+              <span>Username</span>
+              <strong>MC48291</strong>
+              <span>Plan</span>
+              <strong>VIP Prediction Access</strong>
+            </div>
+            <div class="account-status">
+              <b>ACTIVE</b>
+              <span>Expires 19 September 2026</span>
+              <div class="progress large"><i style="width: 72%"></i></div>
+              <small>18 days of access remaining</small>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-block notifications-section" id="notifications">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">UPDATES</span>
+              <h2>Notifications</h2>
+            </div>
+          </div>
+          <div class="notification-list">
+            <article><b>✦ New AI analysis</b><span>Arsenal vs Chelsea has a new AI assessment.</span><time>8 min ago</time></article>
+            <article><b>⚽ New VIP prediction</b><span>A new premium pick has been published.</span><time>24 min ago</time></article>
+            <article><b>✓ Results updated</b><span>Yesterday's prediction results are now settled.</span><time>2 hrs ago</time></article>
+          </div>
+        </section>
+
+        <footer>
+          <div class="footer-brand"><div class="brand-mark">P</div><strong>PredictPro</strong></div>
+          <p>Football predictions and AI-assisted match analysis.</p>
+          <small>© 2026 PredictPro. Predictions are for informational purposes.</small>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <nav class="mobile-nav">
+    <button class="mobile-nav-link active" data-section="dashboard"><span>⌂</span><small>Home</small></button>
+    <button class="mobile-nav-link" data-section="predictions"><span>⚽</span><small>Picks</small></button>
+    <button class="mobile-nav-link" data-section="ai"><span>✦</span><small>AI</small></button>
+    <button class="mobile-nav-link" data-section="results"><span>✓</span><small>Results</small></button>
+    <button class="mobile-nav-link" data-section="profile"><span>◉</span><small>Account</small></button>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+  <script>
+const predictions = [
+  {
+    league: "Premier League", time: "20:00", home: "Arsenal", away: "Chelsea",
+    homeIcon: "A", awayIcon: "C", type: "Match Winner", pick: "Arsenal Win",
+    confidence: 85, tag: "vip", category: "VIP", extra: "Strong home form"
+  },
+  {
+    league: "La Liga", time: "18:30", home: "Barcelona", away: "Sevilla",
+    homeIcon: "B", awayIcon: "S", type: "Goals", pick: "Over 1.5 Goals",
+    confidence: 88, tag: "safe", category: "High Confidence", extra: "Goal trend"
+  },
+  {
+    league: "Serie A", time: "19:45", home: "Inter", away: "Napoli",
+    homeIcon: "I", awayIcon: "N", type: "Both Teams", pick: "BTTS — Yes",
+    confidence: 76, tag: "btts", category: "BTTS", extra: "Attacking matchup"
+  },
+  {
+    league: "Bundesliga", time: "17:30", home: "Bayern", away: "Dortmund",
+    homeIcon: "B", awayIcon: "D", type: "Goals", pick: "Over 2.5 Goals",
+    confidence: 81, tag: "goals", category: "Goals", extra: "High scoring trend"
+  }
+];
+
+const aiPredictions = [
+  { match:"Arsenal vs Chelsea", league:"Premier League", pick:"Arsenal Win", home:62, draw:23, away:15 },
+  { match:"Barcelona vs Sevilla", league:"La Liga", pick:"Over 1.5 Goals", home:74, draw:16, away:10 },
+  { match:"Inter vs Napoli", league:"Serie A", pick:"BTTS — Yes", home:48, draw:27, away:25 }
+];
+
+const predictionList = document.getElementById("predictionList");
+const aiGrid = document.getElementById("aiGrid");
+const toast = document.getElementById("toast");
+
+function renderPredictions(filter = "all") {
+  const items = predictions.filter(p => filter === "all" || p.tag === filter);
+  predictionList.innerHTML = items.map(p => `
+    <article class="prediction-card">
+      <div>
+        <div class="match-meta">
+          <span class="league">${p.league} • ${p.time}</span>
+          ${p.tag === "vip" ? '<b class="live-label">VIP</b>' : ''}
+        </div>
+        <div class="teams">
+          <div class="team"><span class="team-badge">${p.homeIcon}</span>${p.home}</div>
+          <span class="vs">VS</span>
+          <div class="team"><span class="team-badge">${p.awayIcon}</span>${p.away}</div>
+        </div>
+      </div>
+      <div class="pick-box">
+        <span>${p.type}</span>
+        <strong>${p.pick}</strong>
+        <small>◆ ${p.extra}</small>
+      </div>
+      <div class="confidence">
+        <div><strong>${p.confidence}%</strong><span>AI/Model confidence</span></div>
+        <div class="conf-bar"><i style="width:${p.confidence}%"></i></div>
+      </div>
+    </article>
+  `).join("") || `<div class="prediction-card"><strong>No predictions in this category yet.</strong></div>`;
+}
+
+function renderAI() {
+  aiGrid.innerHTML = aiPredictions.map(p => `
+    <article class="ai-card">
+      <div class="ai-card-header">
+        <div><strong class="ai-match">${p.match}</strong><span class="ai-league">${p.league}</span></div>
+        <span class="ai-badge">AI PICK</span>
+      </div>
+      <div class="ai-bars">
+        <div class="ai-row"><span>Home</span><div class="ai-track"><i style="width:${p.home}%"></i></div><b>${p.home}%</b></div>
+        <div class="ai-row"><span>Draw</span><div class="ai-track"><i style="width:${p.draw}%"></i></div><b>${p.draw}%</b></div>
+        <div class="ai-row"><span>Away</span><div class="ai-track"><i style="width:${p.away}%"></i></div><b>${p.away}%</b></div>
+      </div>
+      <div class="ai-pick"><span>AI recommendation</span><strong>${p.pick}</strong></div>
+    </article>
+  `).join("");
+}
+
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add("show");
+  clearTimeout(window.toastTimer);
+  window.toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
+}
+
+renderPredictions();
+renderAI();
+
+document.querySelectorAll(".filter").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".filter").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    renderPredictions(btn.dataset.filter);
+  });
+});
+
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlay");
+document.getElementById("menuBtn").addEventListener("click", () => {
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("show");
+});
+overlay.addEventListener("click", () => {
+  sidebar.classList.remove("open");
+  overlay.classList.remove("show");
+});
+
+function goToSection(section) {
+  if (section === "dashboard") {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+  const el = document.getElementById(section);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  sidebar.classList.remove("open");
+  overlay.classList.remove("show");
+}
+
+document.querySelectorAll("[data-section]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const section = btn.dataset.section;
+    document.querySelectorAll(".nav-link, .mobile-nav-link").forEach(x => x.classList.remove("active"));
+    document.querySelectorAll(`[data-section="${section}"]`).forEach(x => x.classList.add("active"));
+    goToSection(section);
+  });
+});
+
+document.querySelectorAll("[data-scroll]").forEach(btn => {
+  btn.addEventListener("click", () => goToSection(btn.dataset.scroll));
+});
+
+document.getElementById("notificationBtn").addEventListener("click", () => goToSection("notifications"));
+document.getElementById("logoutBtn").addEventListener("click", () => showToast("Logout will be connected to authentication later."));
+document.getElementById("themeBtn").addEventListener("click", () => {
+  document.body.classList.toggle("dark-preview");
+  showToast("Preview theme toggled.");
+});
+
+</script>
+</body>
+</html>
